@@ -126,15 +126,22 @@ interface SidebarContentProps {
 
 const SidebarContent = ({ collapsed, location, onToggle, onMobileClose, modules, user, onRoleChange }: SidebarContentProps) => (
   <>
-    {/* Logo */}
-    <div className={cn("flex h-16 items-center gap-3 border-b border-sidebar-border px-4", collapsed && "justify-center px-0")}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-        <Activity className="h-6 w-6" />
+    {/* Logo - Republic of Kenya Style */}
+    <div className={cn("flex flex-col justify-center gap-1 border-b border-sidebar-border px-4 py-6", collapsed && "items-center px-0")}>
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white border-2 border-primary p-1 shadow-sm">
+          <Activity className="h-6 w-6 text-primary" />
+        </div>
+        {!collapsed && (
+          <div className="flex flex-col">
+            <h1 className="font-heading text-lg font-extrabold text-primary leading-none tracking-tight">E-AFYA</h1>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Health Portal</span>
+          </div>
+        )}
       </div>
       {!collapsed && (
-        <div>
-          <h1 className="font-heading text-lg font-bold text-sidebar-foreground tracking-tight">E-AFYA</h1>
-          <p className="text-[10px] text-sidebar-muted font-medium uppercase tracking-wider">Kenya Health</p>
+        <div className="mt-3 pt-3 border-t border-dashed border-sidebar-border">
+          <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">Republic of Kenya</p>
         </div>
       )}
     </div>
@@ -142,8 +149,8 @@ const SidebarContent = ({ collapsed, location, onToggle, onMobileClose, modules,
     {/* Navigation */}
     <nav className="flex-1 space-y-1 overflow-y-auto p-3">
       {!collapsed && (
-        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-muted">
-          Modules
+        <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
+          Services
         </p>
       )}
       {modules.map((mod) => {

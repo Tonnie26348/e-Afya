@@ -18,25 +18,27 @@ const StatCard = ({ title, value, change, changeType, icon: Icon, iconColor, ind
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.05 }}
-      className="stat-card"
+      className="stat-card flex flex-col justify-between h-full"
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{title}</p>
-          <p className="mt-2 font-heading text-2xl font-bold text-foreground">{value}</p>
+      <div className="space-y-4">
+        <div className={cn("inline-flex rounded-lg p-3", iconColor || "bg-slate-50 border border-slate-100")}>
+          <Icon className={cn("h-6 w-6 text-primary")} />
         </div>
-        <div className={cn("rounded-xl p-2.5", iconColor || "bg-primary/10")}>
-          <Icon className={cn("h-5 w-5", iconColor ? "text-card-foreground" : "text-primary")} />
+        <div>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-tight">{title}</p>
+          <p className="mt-1 font-heading text-2xl font-black text-slate-900">{value}</p>
         </div>
       </div>
-      <p className={cn(
-        "mt-3 text-xs font-medium",
-        changeType === "positive" && "text-secondary",
-        changeType === "negative" && "text-destructive",
-        changeType === "neutral" && "text-muted-foreground"
-      )}>
-        {change}
-      </p>
+      <div className="mt-4 pt-4 border-t border-slate-50">
+        <p className={cn(
+          "text-[11px] font-bold uppercase tracking-wider",
+          changeType === "positive" && "text-emerald-600",
+          changeType === "negative" && "text-red-600",
+          changeType === "neutral" && "text-slate-400"
+        )}>
+          {change}
+        </p>
+      </div>
     </motion.div>
   );
 };

@@ -7,7 +7,14 @@ interface TopBarProps {
 
 const TopBar = ({ onMenuClick }: TopBarProps) => {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-card/80 backdrop-blur-md px-4 md:px-6">
+    <div className="flex flex-col w-full">
+      {/* Kenyan Flag Color Bar */}
+      <div className="h-1.5 w-full flex">
+        <div className="h-full flex-1 bg-black" />
+        <div className="h-full flex-1 bg-[#BB0100]" />
+        <div className="h-full flex-1 bg-[#286208]" />
+      </div>
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-4 md:px-6 shadow-sm">
       <div className="flex items-center gap-3">
         {/* Mobile menu */}
         <button
