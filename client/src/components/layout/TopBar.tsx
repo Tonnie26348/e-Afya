@@ -47,6 +47,7 @@ const TopBar = ({ onMenuClick }: TopBarProps) => {
         </button>
       </div>
     </header>
+    </div>
   );
 };
 
