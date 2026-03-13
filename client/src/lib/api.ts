@@ -39,6 +39,17 @@ export const api = {
     throw new Error(`Path ${path} not implemented in direct Supabase mode`);
   },
 
+  verifyProfessional: async (id: string) => {
+    const { data, error } = await supabase
+      .from('health_professionals')
+      .select('*')
+      .eq('professional_id', id)
+      .single();
+    
+    if (error) throw new Error('Professional ID not found in the national registry.');
+    return { data: { success: true, data } };
+  },
+
   post: async (path: string, body: any) => {
     const segments = path.replace(/^\//, '').split('/');
     const table = segments[0];
