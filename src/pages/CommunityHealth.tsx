@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Users, MapPin, Syringe, ClipboardList, Wifi, WifiOff } from "lucide-react";
+import { motion } from "framer-motion";
 
 const chws = [
   { name: "Jane Wambui", county: "Kiambu", visits: 34, vaccinations: 12, reports: 8, online: true },
@@ -19,35 +20,59 @@ const recentReports = [
 
 const severityBadge = (s: string) => {
   switch (s) {
-    case "severe": return <Badge variant="destructive">Severe</Badge>;
-    case "moderate": return <Badge className="bg-warning text-warning-foreground">Moderate</Badge>;
-    default: return <Badge variant="secondary">Routine</Badge>;
+    case "severe": return <Badge variant="destructive" className="text-[11px]">Severe</Badge>;
+    case "moderate": return <Badge className="bg-warning text-warning-foreground text-[11px]">Moderate</Badge>;
+    default: return <Badge variant="secondary" className="text-[11px]">Routine</Badge>;
   }
 };
 
 const CommunityHealth = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-foreground">Community Health Workers</h1>
-        <p className="text-sm text-muted-foreground">Field reporting and vaccination tracking</p>
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="page-header">
+        <h1>Community Health Workers</h1>
+        <p>Field reporting and vaccination tracking</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Active CHWs</p><p className="font-heading text-2xl font-bold text-foreground mt-1">4,215</p></div>
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Visits This Week</p><p className="font-heading text-2xl font-bold text-secondary mt-1">8,432</p></div>
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Vaccinations</p><p className="font-heading text-2xl font-bold text-primary mt-1">2,891</p></div>
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Pending Sync</p><p className="font-heading text-2xl font-bold text-warning mt-1">127</p></div>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
+        {[
+          { label: "Active CHWs", value: "4,215" },
+          { label: "Visits This Week", value: "8,432", color: "text-secondary" },
+          { label: "Vaccinations", value: "2,891", color: "text-primary" },
+          { label: "Pending Sync", value: "127", color: "text-warning" },
+        ].map((s, i) => (
+          <motion.div
+            key={i}
+            className="stat-card"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+          >
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{s.label}</p>
+            <p className={`font-heading text-xl sm:text-2xl font-bold mt-2 ${s.color || "text-foreground"}`}>{s.value}</p>
+          </motion.div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:gap-6 lg:grid-cols-2">
         <div className="module-card">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Active Workers</h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {chws.map((chw, i) => (
-              <div key={i} className="flex items-center justify-between rounded-md border p-3">
+              <motion.div
+                key={i}
+                className="flex items-center justify-between rounded-lg border p-3 hover:bg-accent/30 transition-colors"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + i * 0.04 }}
+              >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/10 text-secondary font-heading font-bold text-xs">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary/10 text-secondary font-heading font-bold text-xs">
                     {chw.name.split(" ").map(n => n[0]).join("")}
                   </div>
                   <div>
@@ -58,32 +83,38 @@ const CommunityHealth = () => {
                     <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{chw.county}</p>
                   </div>
                 </div>
-                <div className="flex gap-4 text-xs text-muted-foreground">
+                <div className="flex gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><ClipboardList className="h-3 w-3" />{chw.visits}</span>
                   <span className="flex items-center gap-1"><Syringe className="h-3 w-3" />{chw.vaccinations}</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
 
         <div className="module-card">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Recent Field Reports</h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {recentReports.map((r, i) => (
-              <div key={i} className="rounded-md border p-3">
-                <div className="flex items-center justify-between mb-1">
+              <motion.div
+                key={i}
+                className="rounded-lg border p-3 hover:bg-accent/30 transition-colors"
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + i * 0.04 }}
+              >
+                <div className="flex items-center justify-between mb-1.5">
                   <p className="text-sm font-medium text-foreground">{r.type}</p>
                   {severityBadge(r.severity)}
                 </div>
                 <p className="text-xs text-muted-foreground">{r.chw} · {r.patient} · {r.location}</p>
-                <p className="text-xs text-muted-foreground mt-1">{r.time}</p>
-              </div>
+                <p className="text-[11px] text-muted-foreground/70 mt-1">{r.time}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
