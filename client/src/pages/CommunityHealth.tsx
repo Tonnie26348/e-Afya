@@ -23,7 +23,7 @@ interface Professional {
 }
 
 const CommunityHealth = () => {
-  const [profId, setProfId] = useState("");
+  const [profId, setProfId] = useState("CHW-KE-2026-001");
   const [verifying, setVerifying] = useState(false);
   const [verifiedProf, setVerifiedProf] = useState<Professional | null>(null);
   const [reports, setReports] = useState<any[]>([]);
