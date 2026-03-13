@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FileHeart,
@@ -32,6 +32,14 @@ const allModules = [
   { path: "/community-health", icon: Users, label: "Community Health", roles: ["Admin", "CHW"] },
 ];
 
+const rolePrimaryPaths: Record<UserRole, string> = {
+  Admin: "/",
+  Doctor: "/health-exchange",
+  Pharmacist: "/drug-supply",
+  CHW: "/community-health",
+  MinistryAnalyst: "/analytics",
+};
+
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
@@ -41,9 +49,16 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, login } = useAuthStore();
 
   const filteredModules = allModules.filter(m => m.roles.includes(user?.role || 'Admin'));
+
+  const handleRoleChange = (role: UserRole) => {
+    login(role);
+    navigate(rolePrimaryPaths[role]);
+    if (mobileOpen) onMobileClose();
+  };
 
   return (
     <>
@@ -69,7 +84,7 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
           onToggle={onToggle} 
           modules={filteredModules}
           user={user}
-          login={login}
+          onRoleChange={handleRoleChange}
         />
       </aside>
 
@@ -92,7 +107,7 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
           onMobileClose={onMobileClose} 
           modules={filteredModules}
           user={user}
-          login={login}
+          onRoleChange={handleRoleChange}
         />
       </aside>
     </>
@@ -106,10 +121,10 @@ interface SidebarContentProps {
   onMobileClose?: () => void;
   modules: typeof allModules;
   user: any;
-  login: (role: UserRole) => void;
+  onRoleChange: (role: UserRole) => void;
 }
 
-const SidebarContent = ({ collapsed, location, onToggle, onMobileClose, modules, user, login }: SidebarContentProps) => (
+const SidebarContent = ({ collapsed, location, onToggle, onMobileClose, modules, user, onRoleChange }: SidebarContentProps) => (
   <>
     {/* Logo */}
     <div className={cn("flex h-16 items-center gap-3 border-b border-sidebar-border px-4", collapsed && "justify-center px-0")}>
@@ -175,7 +190,7 @@ const SidebarContent = ({ collapsed, location, onToggle, onMobileClose, modules,
           <DropdownMenuLabel className="text-xs">Select Ecosystem Role</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {(['Doctor', 'Pharmacist', 'Admin', 'CHW', 'MinistryAnalyst'] as UserRole[]).map((role) => (
-            <DropdownMenuItem key={role} onClick={() => login(role)}>
+            <DropdownMenuItem key={role} onClick={() => onRoleChange(role)}>
               <span className={cn("text-sm", user?.role === role && "font-bold text-primary")}>
                 {role} View
               </span>
