@@ -1,6 +1,24 @@
 import { Badge } from "@/components/ui/badge";
 import { Users, MapPin, Syringe, ClipboardList, Wifi, WifiOff } from "lucide-react";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import api from "@/lib/api";
+
+interface Report {
+  chw: string;
+  type: string;
+  patient: string;
+  location: string;
+  time: string;
+  severity: "severe" | "moderate" | "routine";
+}
+
+const mockReports: Report[] = [
+  { chw: "Jane Wambui", type: "Malaria Symptoms", patient: "Child, 3yrs", location: "Kiambu Sub-County", time: "2 hrs ago", severity: "moderate" },
+  { chw: "Fatuma Hassan", type: "Malnutrition", patient: "Child, 1yr", location: "Garissa Central", time: "4 hrs ago", severity: "severe" },
+  { chw: "David Kipchoge", type: "Vaccination Follow-up", patient: "Infant, 6mo", location: "Nandi Hills", time: "5 hrs ago", severity: "routine" },
+  { chw: "Samuel Otieno", type: "Cholera Symptoms", patient: "Adult, 32yrs", location: "Siaya Town", time: "6 hrs ago", severity: "severe" },
+];
 
 const chws = [
   { name: "Jane Wambui", county: "Kiambu", visits: 34, vaccinations: 12, reports: 8, online: true },
@@ -9,13 +27,6 @@ const chws = [
   { name: "Samuel Otieno", county: "Siaya", visits: 22, vaccinations: 15, reports: 5, online: true },
   { name: "Agnes Njoki", county: "Murang'a", visits: 37, vaccinations: 22, reports: 9, online: false },
   { name: "Ibrahim Mohamed", county: "Wajir", visits: 19, vaccinations: 6, reports: 4, online: false },
-];
-
-const recentReports = [
-  { chw: "Jane Wambui", type: "Malaria Symptoms", patient: "Child, 3yrs", location: "Kiambu Sub-County", time: "2 hrs ago", severity: "moderate" },
-  { chw: "Fatuma Hassan", type: "Malnutrition", patient: "Child, 1yr", location: "Garissa Central", time: "4 hrs ago", severity: "severe" },
-  { chw: "David Kipchoge", type: "Vaccination Follow-up", patient: "Infant, 6mo", location: "Nandi Hills", time: "5 hrs ago", severity: "routine" },
-  { chw: "Samuel Otieno", type: "Cholera Symptoms", patient: "Adult, 32yrs", location: "Siaya Town", time: "6 hrs ago", severity: "severe" },
 ];
 
 const severityBadge = (s: string) => {
@@ -27,6 +38,34 @@ const severityBadge = (s: string) => {
 };
 
 const CommunityHealth = () => {
+  const [reports, setReports] = useState<Report[]>(mockReports);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await api.get('/reports/chw');
+        if (response.data.success && response.data.data.length > 0) {
+          const mappedReports = response.data.data.map((r: any) => ({
+            chw: r.users?.full_name || "Unknown CHW",
+            type: r.visit_type || "Routine Visit",
+            patient: r.patients?.name || "Anonymous",
+            location: r.location_lat ? `Lat: ${r.location_lat.toFixed(2)}` : "Field Location",
+            time: new Date(r.visit_date).toLocaleTimeString(),
+            severity: "routine" // Placeholder logic
+          }));
+          setReports(mappedReports);
+        }
+      } catch (error) {
+        console.error("Failed to fetch CHW reports:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
   return (
     <motion.div
       className="space-y-6"
@@ -95,7 +134,7 @@ const CommunityHealth = () => {
         <div className="module-card">
           <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Recent Field Reports</h3>
           <div className="space-y-2">
-            {recentReports.map((r, i) => (
+            {reports.map((r, i) => (
               <motion.div
                 key={i}
                 className="rounded-lg border p-3 hover:bg-accent/30 transition-colors"

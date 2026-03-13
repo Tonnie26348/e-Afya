@@ -1,73 +1,83 @@
-# Welcome to your Lovable project
+# E-Afya Health Connect - National Digital Health Ecosystem
 
-## Project info
+This is a full-stack digital health platform designed for Kenya, integrating hospitals, pharmacies, and community health workers.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Project Structure
 
-## How can I edit this code?
+- **client/**: Frontend application (React, Vite, Tailwind CSS, Shadcn UI).
+- **server/**: Backend API (Node.js, Express, TypeScript, Supabase).
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+- Node.js (v18+)
+- Supabase Account (for Database & Auth)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Setup Instructions
 
-Changes made via Lovable will be committed automatically to this repo.
+### 1. Database Setup (Supabase)
 
-**Use your preferred IDE**
+1.  Create a new project on [Supabase](https://supabase.com).
+2.  Go to the **SQL Editor** in your Supabase dashboard.
+3.  Copy the content of `server/db/schema.sql` and run it to create the database tables.
+4.  Go to **Project Settings > API** and copy your `Project URL` and `anon public` key.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 2. Backend Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1.  Navigate to the server directory:
+    ```bash
+    cd server
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Create a `.env` file in the `server` directory:
+    ```env
+    PORT=5000
+    SUPABASE_URL=your_supabase_project_url
+    SUPABASE_KEY=your_supabase_anon_key
+    ```
+4.  Start the server:
+    ```bash
+    npm run dev
+    ```
 
-Follow these steps:
+### 3. Frontend Setup
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1.  Navigate to the client directory:
+    ```bash
+    cd client
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Create a `.env.local` file in the `client` directory:
+    ```env
+    VITE_API_URL=http://localhost:5000/api
+    ```
+4.  Start the frontend:
+    ```bash
+    npm run dev
+    ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Features Implemented
 
-# Step 3: Install the necessary dependencies.
-npm i
+- **Module 1: National Health Data Exchange (NHDE)**
+    - Secure patient record sharing (FHIR compliant schema).
+    - API: `/api/patients`
+- **Module 2: Smart Referral & Hospital Capacity**
+    - Real-time hospital bed/ICU tracking.
+    - API: `/api/hospitals`
+- **Module 4: National Drug Supply Monitor**
+    - Drug inventory tracking and redistribution.
+    - API: `/api/inventory`
+- **Module 5: Community Health Integration**
+    - CHW reporting interface.
+    - API: `/api/reports/chw`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Architecture
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **Frontend:** React + TypeScript + Tailwind CSS
+- **Backend:** Node.js + Express + TypeScript
+- **Database:** PostgreSQL (Supabase)
