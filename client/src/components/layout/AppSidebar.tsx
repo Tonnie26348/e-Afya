@@ -13,14 +13,23 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore, UserRole } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const modules = [
-  { path: "/", icon: LayoutDashboard, label: "Command Center" },
-  { path: "/health-exchange", icon: FileHeart, label: "Health Data Exchange" },
-  { path: "/referrals", icon: ArrowRightLeft, label: "Referrals & Capacity" },
-  { path: "/analytics", icon: BarChart3, label: "Health Analytics" },
-  { path: "/drug-supply", icon: Pill, label: "Drug Supply" },
-  { path: "/community-health", icon: Users, label: "Community Health" },
+const allModules = [
+  { path: "/", icon: LayoutDashboard, label: "Command Center", roles: ["Admin", "Doctor", "Pharmacist", "CHW", "MinistryAnalyst"] },
+  { path: "/health-exchange", icon: FileHeart, label: "Health Data Exchange", roles: ["Admin", "Doctor"] },
+  { path: "/referrals", icon: ArrowRightLeft, label: "Referrals & Capacity", roles: ["Admin", "Doctor"] },
+  { path: "/analytics", icon: BarChart3, label: "Health Analytics", roles: ["Admin", "MinistryAnalyst"] },
+  { path: "/drug-supply", icon: Pill, label: "Drug Supply", roles: ["Admin", "Pharmacist"] },
+  { path: "/community-health", icon: Users, label: "Community Health", roles: ["Admin", "CHW"] },
 ];
 
 interface AppSidebarProps {
@@ -32,6 +41,9 @@ interface AppSidebarProps {
 
 const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSidebarProps) => {
   const location = useLocation();
+  const { user, login } = useAuthStore();
+
+  const filteredModules = allModules.filter(m => m.roles.includes(user?.role || 'Admin'));
 
   return (
     <>
@@ -45,13 +57,20 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
 
       <aside
         className={cn(
-          "flex h-screen flex-col bg-sidebar transition-all duration-300 ease-in-out",
+          "flex h-screen flex-col bg-sidebar transition-all duration-300 ease-in-out border-r border-sidebar-border shadow-sm",
           // Desktop
           "hidden md:flex",
           collapsed ? "w-[72px]" : "w-64"
         )}
       >
-        <SidebarContent collapsed={collapsed} location={location} onToggle={onToggle} />
+        <SidebarContent 
+          collapsed={collapsed} 
+          location={location} 
+          onToggle={onToggle} 
+          modules={filteredModules}
+          user={user}
+          login={login}
+        />
       </aside>
 
       {/* Mobile sidebar */}
@@ -67,7 +86,14 @@ const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSideb
         >
           <X className="h-5 w-5" />
         </button>
-        <SidebarContent collapsed={false} location={location} onMobileClose={onMobileClose} />
+        <SidebarContent 
+          collapsed={false} 
+          location={location} 
+          onMobileClose={onMobileClose} 
+          modules={filteredModules}
+          user={user}
+          login={login}
+        />
       </aside>
     </>
   );
@@ -78,13 +104,16 @@ interface SidebarContentProps {
   location: ReturnType<typeof useLocation>;
   onToggle?: () => void;
   onMobileClose?: () => void;
+  modules: typeof allModules;
+  user: any;
+  login: (role: UserRole) => void;
 }
 
-const SidebarContent = ({ collapsed, location, onToggle, onMobileClose }: SidebarContentProps) => (
+const SidebarContent = ({ collapsed, location, onToggle, onMobileClose, modules, user, login }: SidebarContentProps) => (
   <>
-    {/* Logo - New Professional Design */}
+    {/* Logo */}
     <div className={cn("flex h-16 items-center gap-3 border-b border-sidebar-border px-4", collapsed && "justify-center px-0")}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
         <Activity className="h-6 w-6" />
       </div>
       {!collapsed && (
@@ -123,20 +152,38 @@ const SidebarContent = ({ collapsed, location, onToggle, onMobileClose }: Sideba
       })}
     </nav>
 
-    {/* Simple Role Indicator (Restore previous style) */}
-    {!collapsed && (
-      <div className="border-t border-sidebar-border p-3">
-        <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent p-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
-            <Shield className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-sidebar-foreground">Dr. Amina Wanjiku</p>
-            <p className="text-[10px] text-sidebar-muted uppercase tracking-tight font-bold">Admin</p>
-          </div>
-        </div>
-      </div>
-    )}
+    {/* Simple Role Switcher Dropdown */}
+    <div className="border-t border-sidebar-border p-3">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className={cn(
+            "flex items-center gap-3 w-full rounded-lg bg-sidebar-accent/50 p-3 hover:bg-sidebar-accent transition-colors border border-transparent hover:border-sidebar-border",
+            collapsed && "justify-center px-0"
+          )}>
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+              <Shield className="h-4 w-4" />
+            </div>
+            {!collapsed && (
+              <div className="min-w-0 text-left">
+                <p className="truncate text-xs font-semibold text-sidebar-foreground">{user?.role || 'Admin'}</p>
+                <p className="text-[10px] text-sidebar-muted uppercase tracking-tighter">Switch Role</p>
+              </div>
+            )}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56 mb-2">
+          <DropdownMenuLabel className="text-xs">Select Ecosystem Role</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {(['Doctor', 'Pharmacist', 'Admin', 'CHW', 'MinistryAnalyst'] as UserRole[]).map((role) => (
+            <DropdownMenuItem key={role} onClick={() => login(role)}>
+              <span className={cn("text-sm", user?.role === role && "font-bold text-primary")}>
+                {role} View
+              </span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
 
     {/* Collapse toggle — desktop only */}
     {onToggle && (
