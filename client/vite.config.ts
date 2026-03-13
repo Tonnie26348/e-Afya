@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/e-afya-health-connect/",
+  base: "/e-Afya/",
   server: {
     host: "::",
     port: 8080,
