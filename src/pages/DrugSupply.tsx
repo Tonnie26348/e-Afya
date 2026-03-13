@@ -1,7 +1,8 @@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, Package, TrendingDown, ArrowRight } from "lucide-react";
+import { Package, TrendingDown, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 const inventory = [
   { drug: "Paracetamol 500mg", hospital: "Kenyatta NH", stock: 120, maxStock: 1000, status: "critical" as const },
@@ -16,9 +17,9 @@ const inventory = [
 
 const statusBadge = (status: string) => {
   switch (status) {
-    case "critical": return <Badge variant="destructive">Critical</Badge>;
-    case "low": return <Badge className="bg-warning text-warning-foreground">Low</Badge>;
-    default: return <Badge variant="secondary">Adequate</Badge>;
+    case "critical": return <Badge variant="destructive" className="text-[11px]">Critical</Badge>;
+    case "low": return <Badge className="bg-warning text-warning-foreground text-[11px]">Low</Badge>;
+    default: return <Badge variant="secondary" className="text-[11px]">Adequate</Badge>;
   }
 };
 
@@ -29,50 +30,74 @@ const redistribution = [
 
 const DrugSupply = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-foreground">National Drug Supply Monitor</h1>
-        <p className="text-sm text-muted-foreground">Real-time medicine inventory across facilities</p>
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="page-header">
+        <h1>National Drug Supply Monitor</h1>
+        <p>Real-time medicine inventory across facilities</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Tracked Medicines</p><p className="font-heading text-2xl font-bold text-foreground mt-1">2,847</p></div>
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Critical Alerts</p><p className="font-heading text-2xl font-bold text-destructive mt-1">23</p></div>
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Low Stock Items</p><p className="font-heading text-2xl font-bold text-warning mt-1">156</p></div>
-        <div className="stat-card"><p className="text-sm text-muted-foreground">Redistribution Pending</p><p className="font-heading text-2xl font-bold text-primary mt-1">12</p></div>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
+        {[
+          { label: "Tracked Medicines", value: "2,847" },
+          { label: "Critical Alerts", value: "23", color: "text-destructive" },
+          { label: "Low Stock Items", value: "156", color: "text-warning" },
+          { label: "Redistribution Pending", value: "12", color: "text-primary" },
+        ].map((s, i) => (
+          <motion.div
+            key={i}
+            className="stat-card"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+          >
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{s.label}</p>
+            <p className={`font-heading text-xl sm:text-2xl font-bold mt-2 ${s.color || "text-foreground"}`}>{s.value}</p>
+          </motion.div>
+        ))}
       </div>
 
-      <div className="module-card">
+      <div className="module-card overflow-hidden">
         <h3 className="font-heading text-sm font-semibold text-foreground mb-4">Inventory Overview</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-6 px-6">
+          <table className="w-full text-sm min-w-[600px]">
             <thead>
               <tr className="border-b">
-                <th className="pb-3 text-left text-xs font-medium text-muted-foreground">Drug</th>
-                <th className="pb-3 text-left text-xs font-medium text-muted-foreground">Facility</th>
-                <th className="pb-3 text-left text-xs font-medium text-muted-foreground">Stock Level</th>
-                <th className="pb-3 text-left text-xs font-medium text-muted-foreground">Status</th>
+                <th className="pb-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Drug</th>
+                <th className="pb-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Facility</th>
+                <th className="pb-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stock Level</th>
+                <th className="pb-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {inventory.map((item, i) => (
-                <tr key={i} className="hover:bg-accent/30 transition-colors">
-                  <td className="py-3 font-medium text-foreground">{item.drug}</td>
-                  <td className="py-3 text-muted-foreground">{item.hospital}</td>
-                  <td className="py-3 w-48">
+                <motion.tr
+                  key={i}
+                  className="hover:bg-accent/30 transition-colors"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1 + i * 0.03 }}
+                >
+                  <td className="py-3.5 font-medium text-foreground">{item.drug}</td>
+                  <td className="py-3.5 text-muted-foreground">{item.hospital}</td>
+                  <td className="py-3.5 w-48">
                     <div className="flex items-center gap-2">
                       <Progress
                         value={(item.stock / item.maxStock) * 100}
                         className={cn(
-                          "h-2 flex-1",
+                          "h-2 flex-1 rounded-full",
                           item.status === "critical" ? "[&>div]:bg-destructive" : item.status === "low" ? "[&>div]:bg-warning" : "[&>div]:bg-secondary"
                         )}
                       />
-                      <span className="text-xs text-muted-foreground w-16">{item.stock}/{item.maxStock}</span>
+                      <span className="text-xs text-muted-foreground w-16 text-right">{item.stock}/{item.maxStock}</span>
                     </div>
                   </td>
-                  <td className="py-3">{statusBadge(item.status)}</td>
-                </tr>
+                  <td className="py-3.5">{statusBadge(item.status)}</td>
+                </motion.tr>
               ))}
             </tbody>
           </table>
@@ -85,20 +110,28 @@ const DrugSupply = () => {
         </h3>
         <div className="space-y-3">
           {redistribution.map((r, i) => (
-            <div key={i} className="flex items-center justify-between rounded-md border bg-primary/5 p-4">
-              <div className="flex items-center gap-4">
-                <Package className="h-5 w-5 text-primary" />
+            <motion.div
+              key={i}
+              className="flex flex-col sm:flex-row sm:items-center justify-between rounded-lg border bg-primary/5 p-4 gap-3"
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 + i * 0.06 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-primary/10 p-2.5">
+                  <Package className="h-5 w-5 text-primary" />
+                </div>
                 <div>
                   <p className="text-sm font-medium text-foreground">{r.drug}</p>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">{r.from} <ArrowRight className="h-3 w-3" /> {r.to}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 flex-wrap">{r.from} <ArrowRight className="h-3 w-3 shrink-0" /> {r.to}</p>
                 </div>
               </div>
-              <Badge variant="outline">{r.qty} units</Badge>
-            </div>
+              <Badge variant="outline" className="self-start sm:self-center">{r.qty} units</Badge>
+            </motion.div>
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

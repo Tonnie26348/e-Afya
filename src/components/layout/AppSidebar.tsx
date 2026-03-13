@@ -10,8 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  X,
 } from "lucide-react";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const modules = [
@@ -23,73 +23,131 @@ const modules = [
   { path: "/community-health", icon: Users, label: "Community Health" },
 ];
 
-const AppSidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+interface AppSidebarProps {
+  collapsed: boolean;
+  onToggle: () => void;
+  mobileOpen: boolean;
+  onMobileClose: () => void;
+}
+
+const AppSidebar = ({ collapsed, onToggle, mobileOpen, onMobileClose }: AppSidebarProps) => {
   const location = useLocation();
 
   return (
-    <aside
-      className={cn(
-        "flex h-screen flex-col border-r bg-card transition-all duration-200",
-        collapsed ? "w-16" : "w-64"
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={onMobileClose}
+        />
       )}
-    >
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b px-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <Heart className="h-4 w-4 text-primary-foreground" />
-        </div>
-        {!collapsed && (
-          <div>
-            <h1 className="font-heading text-lg font-bold text-foreground">E-Afya</h1>
-            <p className="text-[10px] text-muted-foreground">Kenya Digital Health</p>
-          </div>
+
+      <aside
+        className={cn(
+          "flex h-screen flex-col bg-sidebar transition-all duration-300 ease-in-out",
+          // Desktop
+          "hidden md:flex",
+          collapsed ? "w-[72px]" : "w-64"
         )}
+      >
+        <SidebarContent collapsed={collapsed} location={location} onToggle={onToggle} />
+      </aside>
+
+      {/* Mobile sidebar */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-sidebar transition-transform duration-300 ease-in-out md:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <button
+          onClick={onMobileClose}
+          className="absolute right-3 top-4 rounded-lg p-1.5 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <SidebarContent collapsed={false} location={location} onMobileClose={onMobileClose} />
+      </aside>
+    </>
+  );
+};
+
+interface SidebarContentProps {
+  collapsed: boolean;
+  location: ReturnType<typeof useLocation>;
+  onToggle?: () => void;
+  onMobileClose?: () => void;
+}
+
+const SidebarContent = ({ collapsed, location, onToggle, onMobileClose }: SidebarContentProps) => (
+  <>
+    {/* Logo */}
+    <div className={cn("flex h-16 items-center gap-3 border-b border-sidebar-border px-4", collapsed && "justify-center px-0")}>
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-glow shadow-lg shadow-primary/25">
+        <Heart className="h-4.5 w-4.5 text-primary-foreground" />
       </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-2">
-        {modules.map((mod) => {
-          const isActive = location.pathname === mod.path;
-          return (
-            <NavLink
-              key={mod.path}
-              to={mod.path}
-              className={cn(
-                "nav-item",
-                isActive ? "nav-item-active" : "nav-item-inactive"
-              )}
-              title={collapsed ? mod.label : undefined}
-            >
-              <mod.icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{mod.label}</span>}
-            </NavLink>
-          );
-        })}
-      </nav>
-
-      {/* Role indicator */}
       {!collapsed && (
-        <div className="border-t p-3">
-          <div className="flex items-center gap-2 rounded-md bg-accent p-2">
-            <Shield className="h-4 w-4 text-primary" />
-            <div>
-              <p className="text-xs font-medium text-foreground">Dr. Amina Wanjiku</p>
-              <p className="text-[10px] text-muted-foreground">Hospital Admin</p>
-            </div>
-          </div>
+        <div>
+          <h1 className="font-heading text-base font-bold text-sidebar-foreground">E-Afya</h1>
+          <p className="text-[10px] text-sidebar-muted">Kenya Digital Health</p>
         </div>
       )}
+    </div>
 
-      {/* Collapse toggle */}
+    {/* Navigation */}
+    <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+      {!collapsed && (
+        <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-muted">
+          Modules
+        </p>
+      )}
+      {modules.map((mod) => {
+        const isActive = location.pathname === mod.path;
+        return (
+          <NavLink
+            key={mod.path}
+            to={mod.path}
+            onClick={onMobileClose}
+            className={cn(
+              "nav-item",
+              isActive ? "nav-item-active" : "nav-item-inactive",
+              collapsed && "justify-center px-0"
+            )}
+            title={collapsed ? mod.label : undefined}
+          >
+            <mod.icon className="h-[18px] w-[18px] shrink-0" />
+            {!collapsed && <span>{mod.label}</span>}
+          </NavLink>
+        );
+      })}
+    </nav>
+
+    {/* Role indicator */}
+    {!collapsed && (
+      <div className="border-t border-sidebar-border p-3">
+        <div className="flex items-center gap-3 rounded-lg bg-sidebar-accent p-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary">
+            <Shield className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-xs font-medium text-sidebar-foreground">Dr. Amina Wanjiku</p>
+            <p className="text-[10px] text-sidebar-muted">Hospital Admin</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Collapse toggle — desktop only */}
+    {onToggle && (
       <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="flex h-10 items-center justify-center border-t text-muted-foreground hover:text-foreground transition-colors"
+        onClick={onToggle}
+        className="hidden md:flex h-10 items-center justify-center border-t border-sidebar-border text-sidebar-muted hover:text-sidebar-foreground transition-colors"
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>
-    </aside>
-  );
-};
+    )}
+  </>
+);
 
 export default AppSidebar;
